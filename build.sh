@@ -23,6 +23,7 @@ fi
 ## handle command line arguments
 read -p "Do you want to sync? (y/N) " choice
 
+# define branch
 pe="pie"
 phh="android-9.0"
 
@@ -61,6 +62,7 @@ if [[ $choice == *"y"* ]];then
     repo sync -c -j$jobs --force-sync --no-tags --no-clone-bundle
 fi
 
+# phh patches
 bash "$(dirname "$0")/apply-patches.sh" patches
 
 # Revert Sample in ROM manifest 
@@ -68,13 +70,13 @@ if grep -qF sample .repo/manifests/snippets/remove.xml;then
     sed -i -E '/device\/sample/d' .repo/manifests/snippets/remove.xml
 fi
 
-# pixel.mk
+# add pixel.mk to phh-treble
 cp $(dirname "$0")/pixel.mk device/phh/treble/
 
 # increase system.img size
 sed -i -e 's/BOARD_SYSTEMIMAGE_PARTITION_SIZE := 2147483648/BOARD_SYSTEMIMAGE_PARTITION_SIZE := 2621440000/g' device/phh/treble/phhgsi_arm64_ab/BoardConfig.mk
 
-# Fake Pixel Devices
+# Fake Pixel Devices :P
 export PRODUCT_MANUFACTURER="Google"
 sed -i -e 's/PRODUCT_BRAND := Android/PRODUCT_BRAND := Google/g' device/phh/treble/generate.sh
 sed -i -e 's/PRODUCT_MODEL := Phh-Treble $apps_name/PRODUCT_BRAND := Pixel 2 XL/g' device/phh/treble/generate.sh
@@ -83,7 +85,7 @@ if grep -qF eligible_device device/phh/treble/system.prop;then
     sed -i -e '$a\ro.opa.eligible_device=true' device/phh/treble/system.prop
 fi
 
-
+# TO BUILD
 . build/envsetup.sh
 
 buildVariant() {
